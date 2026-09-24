@@ -16,11 +16,11 @@
 
 | レイヤー | 技術 |
 |---|---|
-| フロントエンド | Next.js（React 19ベース） |
-| バックエンド | Ruby on Rails |
+| フロントエンド | Next.js（React 19ベース） + TypeScript 5.9 + Tailwind CSS 4 |
+| バックエンド | Ruby on Rails（単体構成） |
 | データベース | MySQL |
 
-バージョン等の詳細は今後整備する。
+前回のTrello風アプリ（Java/Spring Boot + React/Vite + PostgreSQL）とは異なる技術スタックとする方針で選定した。バージョン等の詳細は今後整備する。
 
 ## ディレクトリ構成（予定）
 
