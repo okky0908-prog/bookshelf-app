@@ -1,0 +1,8 @@
+{
+  // このリポジトリで使う拡張機能。フォルダを開くと VS Code がインストールを提案する
+  "recommendations": [
+    "esbenp.prettier-vscode",
+    "dbaeumer.vscode-eslint",
+    "bradlc.vscode-tailwindcss"
+  ]
+}
