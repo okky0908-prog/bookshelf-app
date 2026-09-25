@@ -407,7 +407,7 @@ database.md 9章の文字数上限に加えて、次の組み合わせをチェ�
 |---|---|---|
 | `status` が `done` 以外なのに `finished_on` がある | `finished_on` | 完了日は読了の書籍のみ入力できます |
 | `status` が `done` 以外なのに `rating` がある | `rating` | 評価は読了の書籍のみ入力できます |
-| `status` が `unread` なのに `started_on` がある | `started_on` | 未読の書籍には読書開始日を入力できません |
+| `status` が `unread` なのに `started_on` がある | `started_on` | 読書開始日は未読の書籍には入力できません |
 | `rating` が1〜5の整数でない | `rating` | 評価は1〜5で入力してください |
 | `cover_image_url` が `http://` または `https://` で始まらない | `cover_image_url` | 書影URLは http:// または https:// で始まるURLを入力してください |
 

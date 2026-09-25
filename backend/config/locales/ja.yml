@@ -1,0 +1,49 @@
+# 日本語のエラーメッセージ・項目名
+# エラーは「項目名＋メッセージ」の形で表示する（例：タイトルを入力してください）
+ja:
+  activerecord:
+    models:
+      shelf: 本棚
+      book: 書籍
+      tag: タグ
+    attributes:
+      shelf:
+        name: 本棚名
+      book:
+        shelf: 本棚
+        title: タイトル
+        author: 著者名
+        cover_image_url: 書影URL
+        status: ステータス
+        position: 並び順
+        started_on: 読書開始日
+        finished_on: 完了日
+        rating: 評価
+        memo: 感想メモ
+      tag:
+        name: タグ名
+        normalized_name: タグ名
+    errors:
+      messages:
+        record_invalid: "入力内容に誤りがあります: %{errors}"
+        restrict_dependent_destroy:
+          has_one: "%{record}が存在しているので削除できません"
+          has_many: "%{record}が存在しているので削除できません"
+  errors:
+    format: "%{attribute}%{message}"
+    messages:
+      blank: を入力してください
+      present: は入力しないでください
+      required: を入力してください
+      taken: はすでに存在します
+      too_long: は%{count}文字以内で入力してください
+      inclusion: は一覧にありません
+      invalid: は正しくありません
+      not_a_number: は数値で入力してください
+      not_an_integer: は整数で入力してください
+      in: は%{count}の範囲で入力してください
+      # 独自のメッセージ（docs/api.md 5.2）
+      only_done: は読了の書籍のみ入力できます
+      unread_no_start: は未読の書籍には入力できません
+      rating_range: は1〜5で入力してください
+      http_url: は http:// または https:// で始まるURLを入力してください
