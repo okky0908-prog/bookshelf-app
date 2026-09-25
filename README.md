@@ -26,14 +26,47 @@
 
 前回のTrello風アプリ（Java/Spring Boot + React/Vite + PostgreSQL）とは異なる技術スタックとする方針で選定した。バージョン・ライブラリの詳細と選定理由は[技術スタック詳細](docs/tech-stack.md)を参照。
 
-## ディレクトリ構成（予定）
+## ディレクトリ構成
 
 ```
 .
-├── frontend/   # Next.js フロントエンド
-├── backend/    # Ruby on Rails バックエンド（API）
-└── docs/       # 要件定義・設計ドキュメント
+├── frontend/     # Next.js フロントエンド
+├── backend/      # Ruby on Rails バックエンド（API）
+├── docs/         # 要件定義・設計ドキュメント
+├── compose.yaml  # 開発環境（Docker Compose）
+└── .github/      # CI（GitHub Actions）
 ```
+
+## 開発環境の起動
+
+必要なもの：Docker（Docker Compose）
+
+```bash
+cp .env.example .env      # 初回のみ。DB のパスワードなどを設定する
+docker compose up         # db / backend / frontend を起動する
+```
+
+| サービス | URL |
+|---|---|
+| フロントエンド | http://localhost:3000 |
+| バックエンド（API） | http://localhost:3001/api （稼働確認：http://localhost:3001/up） |
+| MySQL | localhost:3306（`.env` の `DB_PORT` で変更可） |
+
+- backend は起動時に `bin/rails db:prepare` を実行し、データベースを作成・更新する
+- データは Docker のボリューム（`db-data`）に保存される。削除する場合は `docker compose down -v`
+
+よく使うコマンド：
+
+| 内容 | コマンド |
+|---|---|
+| Rails のテスト | `docker compose exec backend bundle exec rspec` |
+| Rails のコードチェック | `docker compose exec backend bin/rubocop` |
+| Rails のコンソール | `docker compose exec backend bin/rails console` |
+| フロントエンドのテスト | `docker compose exec frontend npm test` |
+| フロントエンドのコードチェック | `docker compose exec frontend npm run lint` |
+| gem・npm パッケージを追加したあと | `docker compose build` を実行してから `docker compose up` |
+
+PR を作成すると、GitHub Actions で frontend（Prettier・ESLint・型チェック・Vitest・ビルド）と backend（RuboCop・RSpec）のチェックが実行される。
 
 ## 現在の進捗状況
 
@@ -44,7 +77,7 @@
   - [x] DB設計（[database.md](docs/database.md)）
   - [x] API設計（[api.md](docs/api.md)）
   - [x] 技術スタック詳細（[tech-stack.md](docs/tech-stack.md)）
-- [ ] フロントエンド／バックエンドの環境構築
+- [x] フロントエンド／バックエンドの環境構築
 - [ ] 実装
 
 ## 開発ルール

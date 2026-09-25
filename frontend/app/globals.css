@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+/* 配色はモックアップ（docs/screens.md のモックアップ）に合わせる */
+@theme inline {
+  --color-ground: #f3efe7;
+  --color-surface: #fffdf9;
+  --color-column: #eae4d8;
+  --color-line: #ddd5c6;
+  --color-ink: #1e1c19;
+  --color-muted: #625c53;
+  --color-accent: #2f5d50;
+  --color-danger: #b42318;
+  --color-status-unread: #8a847a;
+  --color-status-reading: #2c6aa8;
+  --color-status-done: #b0621a;
+  --font-sans: var(--font-gothic), "Hiragino Sans", sans-serif;
+  --font-mincho: var(--font-mincho), serif;
+}
+
+body {
+  background: var(--color-ground);
+  color: var(--color-ink);
+}
