@@ -40,7 +40,7 @@
 - [x] 要件定義の確定（機能要件・非機能要件）
 - [ ] 基本設計
   - [x] 画面設計（[screens.md](docs/screens.md)）
-  - [ ] DB設計
+  - [x] DB設計（[database.md](docs/database.md)）
   - [ ] API設計
   - [ ] 技術スタック詳細
 - [ ] フロントエンド／バックエンドの環境構築
