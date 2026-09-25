@@ -1,9 +1,5 @@
-# This file should ensure the existence of records required to run the application in every environment (production,
-# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
-# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
-#
-# Example:
-#
-#   ["Action", "Comedy", "Drama", "Horror"].each do |genre_name|
-#     MovieGenre.find_or_create_by!(name: genre_name)
-#   end
+# 初期データ（docs/database.md 8章）
+# 何度実行しても同じ結果になるようにする
+
+# 最初に起動したとき、本棚「本棚」を1つ作成する
+Shelf.create!(name: "本棚") unless Shelf.exists?
