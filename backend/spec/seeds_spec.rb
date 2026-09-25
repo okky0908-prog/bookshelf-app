@@ -1,6 +1,9 @@
 require "rails_helper"
 
 RSpec.describe "db/seeds.rb" do
+  # テスト用DBの作り方によっては初期データが入っていることがあるため、空の状態から始める
+  before { Shelf.delete_all }
+
   def load_seeds
     load Rails.root.join("db/seeds.rb")
   end
