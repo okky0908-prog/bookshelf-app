@@ -66,9 +66,12 @@ docker compose up         # db / backend / frontend を起動する
 | フロントエンドのコードチェック | `docker compose exec frontend npm run lint` |
 | gem・npm パッケージを追加したあと | `docker compose build` を実行してから `docker compose up` |
 
-### エディタ（VS Code）の準備
+### エディタ（Cursor / VS Code）の準備
 
-リポジトリを開くと、推奨の拡張機能（Prettier・ESLint・Tailwind CSS・Ruby LSP）のインストールが提案される。保存時に frontend のファイルは Prettier、backend の Ruby のファイルは RuboCop で整形される（`.vscode/settings.json`）。
+リポジトリ直下のフォルダではなく、ワークスペースファイル `bookshelf-app.code-workspace` を開いて作業する（ファイル → ファイルでワークスペースを開く）。backend・frontend・ルート（docs など）が別々のフォルダとして開かれ、Ruby LSP が `backend/Gemfile` を正しく使えるようになる。
+
+- 推奨の拡張機能（Prettier・ESLint・Tailwind CSS・Ruby LSP）のインストールが提案されるので、インストールする
+- 保存時に、frontend のファイルは Prettier、backend の Ruby のファイルは RuboCop で整形される（設定はワークスペースファイルにまとめている）
 
 Ruby LSP を使うには、Mac 側にも Ruby と gem を入れる（アプリの実行には不要。Docker の中で動く）。
 
