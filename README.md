@@ -39,7 +39,7 @@
 - [x] 要件定義書（ドラフト）作成
 - [x] 要件定義の確定（機能要件・非機能要件）
 - [ ] 基本設計
-  - [x] 画面設計（[screens.md](docs/screens.md)）
+  - [x] 画面設計（[screens.md](docs/screens.md)）・モックアップ確認済み
   - [x] DB設計（[database.md](docs/database.md)）
   - [ ] API設計
   - [ ] 技術スタック詳細
