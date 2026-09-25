@@ -41,7 +41,7 @@
 - [ ] 基本設計
   - [x] 画面設計（[screens.md](docs/screens.md)）・モックアップ確認済み
   - [x] DB設計（[database.md](docs/database.md)）
-  - [ ] API設計
+  - [x] API設計（[api.md](docs/api.md)）
   - [ ] 技術スタック詳細
 - [ ] フロントエンド／バックエンドの環境構築
 - [ ] 実装
