@@ -36,5 +36,15 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": "explicit"
   },
-  "eslint.workingDirectories": [{ "directory": "frontend", "changeProcessCWD": true }]
+  "eslint.workingDirectories": [{ "directory": "frontend", "changeProcessCWD": true }],
+
+  // Ruby（backend）：Ruby LSP で補完・定義ジャンプを使い、保存時に RuboCop で整形する
+  // formatter "auto" は Gemfile の rubocop を見つけて使う。Mac に rbenv で Ruby を入れ、backend で bundle install を済ませておく必要がある（README 参照）
+  "rubyLsp.rubyVersionManager": { "identifier": "rbenv" },
+  "rubyLsp.bundleGemfile": "backend/Gemfile",
+  "rubyLsp.formatter": "auto",
+  "[ruby]": {
+    "editor.defaultFormatter": "Shopify.ruby-lsp",
+    "editor.formatOnSave": true
+  }
 }

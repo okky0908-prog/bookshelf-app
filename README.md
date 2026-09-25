@@ -66,6 +66,22 @@ docker compose up         # db / backend / frontend を起動する
 | フロントエンドのコードチェック | `docker compose exec frontend npm run lint` |
 | gem・npm パッケージを追加したあと | `docker compose build` を実行してから `docker compose up` |
 
+### エディタ（VS Code）の準備
+
+リポジトリを開くと、推奨の拡張機能（Prettier・ESLint・Tailwind CSS・Ruby LSP）のインストールが提案される。保存時に frontend のファイルは Prettier、backend の Ruby のファイルは RuboCop で整形される（`.vscode/settings.json`）。
+
+Ruby LSP を使うには、Mac 側にも Ruby と gem を入れる（アプリの実行には不要。Docker の中で動く）。
+
+```bash
+brew install rbenv ruby-build libyaml openssl@3 mysql-client@8.4
+rbenv install 4.0.7       # backend/.ruby-version と同じバージョン
+cd backend
+bundle config set --local build.mysql2 "--with-mysql-config=$(brew --prefix mysql-client@8.4)/bin/mysql_config"
+bundle install
+```
+
+`~/.zshrc` に `eval "$(rbenv init - zsh)"` を追記しておく。
+
 PR を作成すると、GitHub Actions で frontend（Prettier・ESLint・型チェック・Vitest・ビルド）と backend（RuboCop・RSpec）のチェックが実行される。
 
 ## 現在の進捗状況
