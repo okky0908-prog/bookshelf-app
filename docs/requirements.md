@@ -145,11 +145,11 @@
 
 ## 9. 技術スタック
 
-- フロントエンド：Next.js（React 19ベース） + TypeScript 5.9 + Tailwind CSS 4
+- フロントエンド：Next.js 16（React 19ベース） + TypeScript 6.0 + Tailwind CSS 4
 - バックエンド：Ruby on Rails（単体構成。前回のJava/Spring Bootとは異なる技術スタックとするため採用。複数バックエンドサービスの併用は、学習効果に対して複雑さ・リスクが見合わないため見送った）
-- データベース：MySQL
+- データベース：MySQL 8.4
 
-→ 詳細は今後 tech-stack.md として分割予定（具体的なバージョン・ライブラリ選定はこれから決定する）
+→ バージョン・ライブラリ・開発環境の詳細は[技術スタック詳細（tech-stack.md）](tech-stack.md)を参照。TypeScript は当初 5.9 としていたが、設計時に 6.0 へ変更した（理由は tech-stack.md 8章）
 
 ## 10. 主な仕様判断とその理由
 
@@ -189,7 +189,7 @@
 
 - ~~データ構造（テーブル設計・並び順の持ち方）~~ → [database.md](database.md) で決定済み
 - ~~フロントエンド〜バックエンド間のAPI仕様（エンドポイント設計等）~~ → [api.md](api.md) で決定済み
-- Next.jsのレンダリング方式（App Router／Pages Router、SSR/CSRの方針）
+- ~~Next.jsのレンダリング方式（App Router／Pages Router、SSR/CSRの方針）~~ → App Router＋CSRに決定（[tech-stack.md](tech-stack.md) 3章）
 - ~~Rails APIモードで構築するか、フルスタック（ビューをRails側で持つ）にするか~~ → APIモードに決定（[api.md](api.md) 1章）
-- ドラッグ&ドロップ・グラフ描画に使うライブラリの選定
+- ~~ドラッグ&ドロップ・グラフ描画に使うライブラリの選定~~ → dnd-kit・Rechartsに決定（[tech-stack.md](tech-stack.md) 3.3）
 - ~~各項目の文字数上限などの入力バリデーション~~ → [database.md](database.md) 9章で決定済み

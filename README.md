@@ -19,11 +19,12 @@
 
 | レイヤー | 技術 |
 |---|---|
-| フロントエンド | Next.js（React 19ベース） + TypeScript 5.9 + Tailwind CSS 4 |
-| バックエンド | Ruby on Rails（単体構成） |
-| データベース | MySQL |
+| フロントエンド | Next.js 16（App Router、React 19） + TypeScript 6.0 + Tailwind CSS 4 / TanStack Query・dnd-kit・Recharts |
+| バックエンド | Ruby 4.0 + Ruby on Rails 8.1（APIモード） |
+| データベース | MySQL 8.4 |
+| 開発環境 | Docker Compose（ローカルのみ） / GitHub Actions（CI） |
 
-前回のTrello風アプリ（Java/Spring Boot + React/Vite + PostgreSQL）とは異なる技術スタックとする方針で選定した。バージョン等の詳細は今後整備する。
+前回のTrello風アプリ（Java/Spring Boot + React/Vite + PostgreSQL）とは異なる技術スタックとする方針で選定した。バージョン・ライブラリの詳細と選定理由は[技術スタック詳細](docs/tech-stack.md)を参照。
 
 ## ディレクトリ構成（予定）
 
@@ -38,11 +39,11 @@
 
 - [x] 要件定義書（ドラフト）作成
 - [x] 要件定義の確定（機能要件・非機能要件）
-- [ ] 基本設計
+- [x] 基本設計
   - [x] 画面設計（[screens.md](docs/screens.md)）・モックアップ確認済み
   - [x] DB設計（[database.md](docs/database.md)）
   - [x] API設計（[api.md](docs/api.md)）
-  - [ ] 技術スタック詳細
+  - [x] 技術スタック詳細（[tech-stack.md](docs/tech-stack.md)）
 - [ ] フロントエンド／バックエンドの環境構築
 - [ ] 実装
 
