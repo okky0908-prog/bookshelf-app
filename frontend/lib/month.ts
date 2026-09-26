@@ -40,3 +40,8 @@ export function toMonthParam({ year, month }: YearMonth): string {
 export function formatYearMonth({ year, month }: YearMonth): string {
   return `${year}年${month}月`;
 }
+
+/** 指定した月までの直近 count ヶ月（古い月から順） */
+export function recentMonths(last: YearMonth, count: number): YearMonth[] {
+  return Array.from({ length: count }, (_, index) => addMonths(last, index - count + 1));
+}

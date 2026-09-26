@@ -1,5 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { addMonths, currentYearMonth, formatYearMonth, toMonthParam, todayInTokyo } from "./month";
+import {
+  addMonths,
+  currentYearMonth,
+  formatYearMonth,
+  recentMonths,
+  toMonthParam,
+  todayInTokyo,
+} from "./month";
 
 describe("currentYearMonth", () => {
   it("Asia/Tokyo の日付で今月を決める", () => {
@@ -28,5 +35,16 @@ describe("表示の形", () => {
   it("API には YYYY-MM、画面には「2026年9月」の形で渡す", () => {
     expect(toMonthParam({ year: 2026, month: 9 })).toBe("2026-09");
     expect(formatYearMonth({ year: 2026, month: 9 })).toBe("2026年9月");
+  });
+});
+
+describe("recentMonths", () => {
+  it("指定した月を含む直近12ヶ月を、古い月から順に返す", () => {
+    const months = recentMonths({ year: 2026, month: 9 }, 12);
+
+    expect(months).toHaveLength(12);
+    expect(months[0]).toEqual({ year: 2025, month: 10 });
+    expect(months[3]).toEqual({ year: 2026, month: 1 });
+    expect(months[11]).toEqual({ year: 2026, month: 9 });
   });
 });
