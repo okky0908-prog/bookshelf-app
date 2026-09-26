@@ -314,3 +314,59 @@ RSpec.describe "書籍のAPI", type: :request do
     end
   end
 end
+
+RSpec.describe "書籍のAPI（同時に操作した場合）", type: :request do
+  let(:json) { response.parsed_body }
+  let(:shelf) { create(:shelf) }
+  let!(:book) { create(:book, shelf:) }
+
+  # 1回目だけ、書籍を読み込むときにデッドロックを起こす
+  def deadlock_first(times: 1)
+    calls = 0
+    allow(Book).to receive(:find).and_wrap_original do |original, *args|
+      calls += 1
+      raise ActiveRecord::Deadlocked, "Deadlock found" if calls <= times
+
+      original.call(*args)
+    end
+  end
+
+  it "デッドロックで取り消されたら、最初からやり直す" do
+    deadlock_first
+
+    patch "/api/books/#{book.id}/move", params: { status: "reading" }, as: :json
+
+    expect(response).to have_http_status(:ok)
+    expect(json.dig("book", "status")).to eq "reading"
+    expect(Book).to have_received(:find).twice
+  end
+
+  it "3回続けて取り消されたら、500 internal_error を返す" do
+    deadlock_first(times: 3)
+    allow(Rails.logger).to receive(:error)
+
+    patch "/api/books/#{book.id}/move", params: { status: "reading" }, as: :json
+
+    expect(response).to have_http_status(:internal_server_error)
+    expect(json.dig("error", "code")).to eq "internal_error"
+    expect(book.reload.status).to eq "unread"
+  end
+
+  it "保存している間に移動先の本棚が削除されたら、422 を返す" do
+    allow_any_instance_of(Book).to receive(:save).and_raise(ActiveRecord::InvalidForeignKey)
+
+    patch "/api/books/#{book.id}", params: { book: { shelf_id: shelf.id } }, as: :json
+
+    expect(response).to have_http_status(:unprocessable_content)
+    expect(json.dig("error", "details")).to eq("shelf_id" => [ "本棚が見つかりません" ])
+  end
+
+  it "保存している間に登録先の本棚が削除されたら、404 を返す" do
+    allow_any_instance_of(Book).to receive(:save).and_raise(ActiveRecord::InvalidForeignKey)
+
+    post "/api/shelves/#{shelf.id}/books", params: { book: { title: "三体" } }, as: :json
+
+    expect(response).to have_http_status(:not_found)
+    expect(json.dig("error", "message")).to eq "本棚が見つかりません"
+  end
+end

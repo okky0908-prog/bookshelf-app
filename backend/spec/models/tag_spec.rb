@@ -19,6 +19,32 @@ RSpec.describe Tag, type: :model do
     end
   end
 
+  describe ".find_or_create_by_name!" do
+    it "表記ゆれを含めて同じタグがあれば、それを返す" do
+      ruby = create(:tag, name: "Ruby")
+
+      expect(Tag.find_or_create_by_name!("ＲＵＢＹ")).to eq ruby
+    end
+
+    it "なければ作る" do
+      expect { Tag.find_or_create_by_name!("小説") }.to change(Tag, :count).by(1)
+    end
+
+    it "同時に作ろうとして先を越された場合は、先に作られたタグを使う" do
+      # find_by で見つからなかった直後に、ほかの操作が同じタグを作ったことにする
+      allow(Tag).to receive(:create!).and_wrap_original do |original, **attributes|
+        original.call(**attributes)
+        raise ActiveRecord::RecordNotUnique, "Duplicate entry"
+      end
+
+      tag = Tag.find_or_create_by_name!("SF")
+
+      expect(tag).to be_persisted
+      expect(tag.name).to eq "SF"
+      expect(Tag.count).to eq 1
+    end
+  end
+
   describe "入力チェック" do
     it "保存時に normalized_name を入れる" do
       expect(create(:tag, name: "ミステリー").normalized_name).to eq "みすてりー"

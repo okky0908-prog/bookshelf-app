@@ -26,6 +26,10 @@ class Book < ApplicationRecord
 
   # 並び順（docs/database.md 5章）
   # 新しく登録した書籍や、本棚・ステータスが変わった書籍は、移動先の列の末尾に置き、移動元の列を詰める
+  # 並び順を変える前に、関係する本棚の行をロックする（下の lock_shelves を参照）
+  # before_validation と before_destroy は、保存・削除のトランザクションの中で最初に呼ばれる
+  before_validation :lock_shelves
+  before_destroy :lock_shelves
   before_validation :append_to_column, on: :create, if: -> { position.nil? && shelf && status }
   before_update :append_to_column, if: :column_changing?
   after_update :compact_previous_column, if: :column_changed?
@@ -59,6 +63,7 @@ class Book < ApplicationRecord
     raise ActiveRecord::RecordInvalid, self if errors.any?
 
     transaction do
+      lock_shelves
       change_status(status) unless self.status == status
       save!
       others = self.class.in_column(shelf_id, self.status).where.not(id:).lock.order(:position, :id).to_a
@@ -70,6 +75,14 @@ class Book < ApplicationRecord
   private
 
   # ステータスを変えたときの日付・評価の更新（docs/database.md 6章）
+  # 並び順の振り直しが同時に行われても、デッドロックにならないようにする（docs/database.md 5章）
+  # 書籍の行をロックする前に、関係する本棚（移動元・移動先）の行を、いつも同じ順番（ID の昇順）でロックする。
+  # 同じ本棚の並び順を変える操作は、1つずつ順番に行われる
+  def lock_shelves
+    ids = [ shelf_id, shelf_id_in_database ].compact.uniq.sort
+    Shelf.where(id: ids).order(:id).lock.load if ids.any?
+  end
+
   def change_status(new_status)
     today = Date.current
     case new_status

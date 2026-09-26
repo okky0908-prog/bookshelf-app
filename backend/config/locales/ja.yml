@@ -10,6 +10,7 @@ ja:
       shelf_not_empty: 書籍が残っているため削除できません。別の本棚へ移動するか削除してください
       last_shelf: 本棚が1つしかないため削除できません
       validation_failed: 入力内容に誤りがあります
+      internal_error: サーバーでエラーが発生しました。時間をおいて再度お試しください
   activerecord:
     models:
       shelf: 本棚

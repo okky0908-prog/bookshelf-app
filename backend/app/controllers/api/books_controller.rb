@@ -1,5 +1,9 @@
 module Api
   class BooksController < ApplicationController
+    MAX_ATTEMPTS = 3
+
+    # 本棚・書籍を読み込む前に置き、やり直すときは読み込みからやり直す
+    prepend_around_action :retry_on_lock_conflict, only: %i[create update move destroy]
     before_action :set_shelf, only: %i[index create]
     before_action :set_book, only: %i[show update destroy move]
 
@@ -55,7 +59,33 @@ module Api
       head :no_content
     end
 
+    rescue_from ActiveRecord::InvalidForeignKey, with: :render_shelf_gone
+
     private
+
+    # 並び順の振り直しが同時に行われると、MySQL がデッドロックとして片方を取り消すことがある。
+    # 取り消された処理は最初からやり直す（docs/database.md 5章）
+    def retry_on_lock_conflict
+      attempts = 0
+      begin
+        attempts += 1
+        yield
+      rescue ActiveRecord::Deadlocked, ActiveRecord::LockWaitTimeout
+        raise if attempts >= MAX_ATTEMPTS
+
+        retry
+      end
+    end
+
+    # 保存している間に、登録先・移動先の本棚が削除された場合
+    def render_shelf_gone
+      message = I18n.t("api.errors.record_not_found", model: Shelf.model_name.human)
+      if action_name == "create"
+        render_error(:not_found, "not_found", message)
+      else
+        render_error(:unprocessable_content, "validation_failed", details: { shelf_id: [ message ] })
+      end
+    end
 
     def set_shelf
       @shelf = Shelf.find(params[:shelf_id])

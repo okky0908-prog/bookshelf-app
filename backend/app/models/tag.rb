@@ -11,7 +11,12 @@ class Tag < ApplicationRecord
 
   # 表記ゆれを含めて同じタグがあればそれを返し、なければ作る（docs/api.md 5.1）
   def self.find_or_create_by_name!(name)
-    find_by(normalized_name: normalize_name(name)) || create!(name:)
+    normalized = normalize_name(name)
+    find_by(normalized_name: normalized) || create!(name:)
+  rescue ActiveRecord::RecordNotUnique
+    # 同じタグを同時に作ろうとして先を越された場合は、先に作られたタグを使う
+    # MySQL（REPEATABLE READ）では、ロックを付けて読むと、トランザクションの途中でもほかが作った行を読める
+    lock.find_by!(normalized_name: normalized)
   end
 
   # 表記ゆれをそろえて、同じタグかどうかを判定するキーを作る（docs/database.md 3.3.1）
