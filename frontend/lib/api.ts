@@ -1,5 +1,7 @@
 // Rails API の呼び出しをまとめる（docs/api.md）
 
+import type { Board, MonthlyRead, Shelf, Tag } from "./types";
+
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api";
 
 /** api.md 3.2 のエラー形式 */
@@ -38,6 +40,13 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...init,
     headers: { "Content-Type": "application/json", Accept: "application/json", ...init.headers },
+  }).catch(() => {
+    // バックエンドが起動していないなど、サーバーに届かなかった場合
+    throw new ApiError(
+      0,
+      "network_error",
+      "サーバーに接続できませんでした。バックエンドが起動しているか確認してください",
+    );
   });
 
   if (response.status === 204) return undefined as T;
@@ -56,4 +65,37 @@ export async function apiFetch<T>(path: string, init: RequestInit = {}): Promise
   }
 
   return body as T;
+}
+
+export type BoardFilter = {
+  /** キーワード（タイトル・著者名） */
+  q: string;
+  /** タグのID。空文字は「すべて」 */
+  tagId: string;
+};
+
+function withQuery(path: string, query: Record<string, string>) {
+  const params = new URLSearchParams(Object.entries(query).filter(([, value]) => value !== ""));
+  const search = params.toString();
+  return search ? `${path}?${search}` : path;
+}
+
+/** API-01 本棚の一覧 */
+export function fetchShelves() {
+  return apiFetch<{ shelves: Shelf[] }>("/shelves");
+}
+
+/** API-05 ボード（3列の書籍） */
+export function fetchBoard(shelfId: number, { q, tagId }: BoardFilter) {
+  return apiFetch<Board>(withQuery(`/shelves/${shelfId}/books`, { q, tag_id: tagId }));
+}
+
+/** API-11 タグの一覧 */
+export function fetchTags() {
+  return apiFetch<{ tags: Tag[] }>("/tags");
+}
+
+/** API-12 月別の読了冊数（from・to は YYYY-MM） */
+export function fetchMonthlyReads(from: string, to: string) {
+  return apiFetch<{ months: MonthlyRead[] }>(withQuery("/stats/monthly_reads", { from, to }));
 }

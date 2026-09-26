@@ -1,9 +1,13 @@
 import { afterEach, describe, expect, it, vi } from "vitest";
-import { API_BASE_URL, ApiError, apiFetch } from "./api";
+import { API_BASE_URL, ApiError, apiFetch, fetchBoard, fetchMonthlyReads } from "./api";
 
 function mockFetch(status: number, body?: unknown) {
-  const response = new Response(body === undefined ? null : JSON.stringify(body), { status });
-  return vi.spyOn(globalThis, "fetch").mockResolvedValue(response);
+  // Response の本文は1回しか読めないため、呼ばれるたびに作る
+  return vi
+    .spyOn(globalThis, "fetch")
+    .mockImplementation(
+      async () => new Response(body === undefined ? null : JSON.stringify(body), { status }),
+    );
 }
 
 afterEach(() => {
@@ -42,6 +46,16 @@ describe("apiFetch", () => {
     });
   });
 
+  it("サーバーに届かなかった場合は network_error として扱う", async () => {
+    vi.spyOn(globalThis, "fetch").mockRejectedValue(new TypeError("Failed to fetch"));
+
+    await expect(apiFetch("/shelves")).rejects.toMatchObject({
+      status: 0,
+      code: "network_error",
+      message: "サーバーに接続できませんでした。バックエンドが起動しているか確認してください",
+    });
+  });
+
   it("形式が違うエラーは internal_error として扱う", async () => {
     mockFetch(500, "Internal Server Error");
 
@@ -49,5 +63,33 @@ describe("apiFetch", () => {
       status: 500,
       code: "internal_error",
     });
+  });
+});
+
+describe("クエリパラメータ", () => {
+  it("ボードの取得では、空の条件を送らない", async () => {
+    const fetchMock = mockFetch(200, {});
+
+    await fetchBoard(1, { q: "", tagId: "" });
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      `${API_BASE_URL}/shelves/1/books`,
+      expect.any(Object),
+    );
+
+    await fetchBoard(1, { q: "三体 SF", tagId: "4" });
+    expect(fetchMock).toHaveBeenLastCalledWith(
+      `${API_BASE_URL}/shelves/1/books?q=%E4%B8%89%E4%BD%93+SF&tag_id=4`,
+      expect.any(Object),
+    );
+  });
+
+  it("月別の読了冊数は from・to を送る", async () => {
+    const fetchMock = mockFetch(200, { months: [] });
+
+    await fetchMonthlyReads("2025-10", "2026-09");
+    expect(fetchMock).toHaveBeenCalledWith(
+      `${API_BASE_URL}/stats/monthly_reads?from=2025-10&to=2026-09`,
+      expect.any(Object),
+    );
   });
 });
