@@ -13,6 +13,8 @@ Rails.application.routes.draw do
     resources :books, only: %i[show update destroy] do
       patch :move, on: :member
     end
+    resources :tags, only: %i[index]
+    get "stats/monthly_reads", to: "stats#monthly_reads"
   end
 
   # Defines the root path route ("/")
