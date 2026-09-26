@@ -1,6 +1,15 @@
 # 日本語のエラーメッセージ・項目名
 # エラーは「項目名＋メッセージ」の形で表示する（例：タイトルを入力してください）
 ja:
+  # APIのエラーメッセージ（docs/api.md 3.2、docs/screens.md 6章）
+  api:
+    errors:
+      bad_request: リクエストの形式が正しくありません
+      not_found: 対象が見つかりません
+      record_not_found: "%{model}が見つかりません"
+      shelf_not_empty: 書籍が残っているため削除できません。別の本棚へ移動するか削除してください
+      last_shelf: 本棚が1つしかないため削除できません
+      validation_failed: 入力内容に誤りがあります
   activerecord:
     models:
       shelf: 本棚

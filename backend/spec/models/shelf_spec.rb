@@ -25,6 +25,26 @@ RSpec.describe Shelf, type: :model do
     end
   end
 
+  describe ".with_books_count" do
+    it "本棚ごとの書籍の数を books_count に入れる" do
+      empty = create(:shelf)
+      full = create(:shelf)
+      create_list(:book, 3, shelf: full)
+
+      counts = Shelf.with_books_count.to_h { [ it.id, it.books_count ] }
+      expect(counts).to eq(empty.id => 0, full.id => 3)
+    end
+  end
+
+  describe "#books_count" do
+    it "with_books_count を使わない場合は、その場で数える" do
+      shelf = create(:shelf)
+      create(:book, shelf:)
+
+      expect(shelf.books_count).to eq 1
+    end
+  end
+
   describe "削除" do
     it "書籍がなければ削除できる" do
       shelf = create(:shelf)
