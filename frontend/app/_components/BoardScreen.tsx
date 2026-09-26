@@ -6,6 +6,7 @@ import { useCallback, useState } from "react";
 import { ApiError, fetchBoard, fetchMonthlyReads, fetchShelves, fetchTags } from "@/lib/api";
 import { addMonths, currentYearMonth, toMonthParam } from "@/lib/month";
 import { useDebouncedValue } from "@/lib/useDebouncedValue";
+import { useMoveBook } from "@/lib/useMoveBook";
 import { AppHeader } from "./AppHeader";
 import { BoardView } from "./BoardView";
 import { BookFormModal, type BookModalMode } from "./BookFormModal";
@@ -41,8 +42,9 @@ export function BoardScreen() {
   const shelfParam = Number(searchParams.get("shelf"));
   const shelf = shelves.find(({ id }) => id === shelfParam) ?? shelves[0];
 
+  const boardKey = ["board", shelf?.id, { q, tagId }];
   const boardQuery = useQuery({
-    queryKey: ["board", shelf?.id, { q, tagId }],
+    queryKey: boardKey,
     queryFn: () => fetchBoard(shelf!.id, { q, tagId }),
     enabled: shelf !== undefined,
     // 同じ本棚で条件だけ変えたときは、読み込み中も前の結果を表示したままにする（別の本棚の結果は出さない）
@@ -61,6 +63,8 @@ export function BoardScreen() {
     queryFn: () => fetchMonthlyReads(monthParam, monthParam),
     select: (data) => data.months[0]?.count ?? 0,
   });
+
+  const moveBook = useMoveBook(setToast);
 
   const selectShelf = (shelfId: number) => {
     // 本棚を切り替えても、検索・絞り込みの条件は維持する（docs/screens.md 4.2）
@@ -108,6 +112,7 @@ export function BoardScreen() {
         <BoardView
           board={boardQuery.data}
           onOpenBook={(bookId) => setBookModal({ type: "edit", bookId })}
+          onMoveBook={(bookId, target) => moveBook.mutate({ boardKey, bookId, target })}
         />
       ) : (
         <BoardLoading />
