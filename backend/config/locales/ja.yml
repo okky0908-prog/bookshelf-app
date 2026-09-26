@@ -20,6 +20,7 @@ ja:
         name: 本棚名
       book:
         shelf: 本棚
+        shelf_id: 本棚
         title: タイトル
         author: 著者名
         cover_image_url: 書影URL
@@ -29,6 +30,7 @@ ja:
         finished_on: 完了日
         rating: 評価
         memo: 感想メモ
+        tag_names: タグ名
       tag:
         name: タグ名
         normalized_name: タグ名
@@ -51,6 +53,8 @@ ja:
       not_a_number: は数値で入力してください
       not_an_integer: は整数で入力してください
       in: は%{count}の範囲で入力してください
+      greater_than_or_equal_to: は%{count}以上の値にしてください
+      not_found: が見つかりません
       # 独自のメッセージ（docs/api.md 5.2）
       only_done: は読了の書籍のみ入力できます
       unread_no_start: は未読の書籍には入力できません

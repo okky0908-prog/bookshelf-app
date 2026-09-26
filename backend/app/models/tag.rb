@@ -9,6 +9,11 @@ class Tag < ApplicationRecord
 
   before_validation { self.normalized_name = self.class.normalize_name(name) }
 
+  # 表記ゆれを含めて同じタグがあればそれを返し、なければ作る（docs/api.md 5.1）
+  def self.find_or_create_by_name!(name)
+    find_by(normalized_name: normalize_name(name)) || create!(name:)
+  end
+
   # 表記ゆれをそろえて、同じタグかどうかを判定するキーを作る（docs/database.md 3.3.1）
   # 1. 前後の空白を取り除き、連続する空白を1つにする
   # 2. NFKC で全角英数字を半角に、半角カタカナを全角にそろえる

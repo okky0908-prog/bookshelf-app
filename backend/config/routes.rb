@@ -7,7 +7,12 @@ Rails.application.routes.draw do
 
   # docs/api.md 2章
   namespace :api do
-    resources :shelves, only: %i[index create update destroy]
+    resources :shelves, only: %i[index create update destroy] do
+      resources :books, only: %i[index create]
+    end
+    resources :books, only: %i[show update destroy] do
+      patch :move, on: :member
+    end
   end
 
   # Defines the root path route ("/")
