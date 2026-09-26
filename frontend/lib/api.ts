@@ -1,6 +1,6 @@
 // Rails API の呼び出しをまとめる（docs/api.md）
 
-import type { Board, MonthlyRead, Shelf, Tag } from "./types";
+import type { Board, Book, BookInput, MonthlyRead, Shelf, Tag } from "./types";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api";
 
@@ -90,9 +90,35 @@ export function fetchBoard(shelfId: number, { q, tagId }: BoardFilter) {
   return apiFetch<Board>(withQuery(`/shelves/${shelfId}/books`, { q, tag_id: tagId }));
 }
 
-/** API-11 タグの一覧 */
-export function fetchTags() {
-  return apiFetch<{ tags: Tag[] }>("/tags");
+/** API-06 書籍の登録 */
+export function createBook(shelfId: number, book: BookInput) {
+  return apiFetch<{ book: Book }>(`/shelves/${shelfId}/books`, {
+    method: "POST",
+    body: JSON.stringify({ book }),
+  });
+}
+
+/** API-07 書籍の詳細 */
+export function fetchBook(bookId: number) {
+  return apiFetch<{ book: Book }>(`/books/${bookId}`);
+}
+
+/** API-08 書籍の更新 */
+export function updateBook(bookId: number, book: BookInput) {
+  return apiFetch<{ book: Book }>(`/books/${bookId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ book }),
+  });
+}
+
+/** API-10 書籍の削除 */
+export function deleteBook(bookId: number) {
+  return apiFetch<void>(`/books/${bookId}`, { method: "DELETE" });
+}
+
+/** API-11 タグの一覧。q を渡すと、表記ゆれを無視して部分一致するタグに絞り込む */
+export function fetchTags(q = "") {
+  return apiFetch<{ tags: Tag[] }>(withQuery("/tags", { q }));
 }
 
 /** API-12 月別の読了冊数（from・to は YYYY-MM） */

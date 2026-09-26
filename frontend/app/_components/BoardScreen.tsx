@@ -2,13 +2,15 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { ApiError, fetchBoard, fetchMonthlyReads, fetchShelves, fetchTags } from "@/lib/api";
 import { addMonths, currentYearMonth, toMonthParam } from "@/lib/month";
 import { useDebouncedValue } from "@/lib/useDebouncedValue";
 import { AppHeader } from "./AppHeader";
 import { BoardView } from "./BoardView";
+import { BookFormModal, type BookModalMode } from "./BookFormModal";
 import { ShelfTabs } from "./ShelfTabs";
+import { Toast } from "./Toast";
 import { Toolbar } from "./Toolbar";
 
 /** キーワードの入力が止まってから絞り込むまでの時間（docs/api.md API-05） */
@@ -23,6 +25,9 @@ export function BoardScreen() {
   const [keyword, setKeyword] = useState("");
   const [tagId, setTagId] = useState("");
   const q = useDebouncedValue(keyword.trim(), SEARCH_DELAY_MS);
+  const [bookModal, setBookModal] = useState<BookModalMode | null>(null);
+  const [toast, setToast] = useState<string | null>(null);
+  const dismissToast = useCallback(() => setToast(null), []);
 
   const shelvesQuery = useQuery({
     queryKey: ["shelves"],
@@ -44,7 +49,7 @@ export function BoardScreen() {
 
   const tagsQuery = useQuery({
     queryKey: ["tags"],
-    queryFn: fetchTags,
+    queryFn: () => fetchTags(),
     select: (data) => data.tags,
   });
 
@@ -82,6 +87,7 @@ export function BoardScreen() {
         onKeywordChange={setKeyword}
         onTagChange={setTagId}
         onClear={clearFilter}
+        onAdd={() => shelf && setBookModal({ type: "add", shelfId: shelf.id })}
       />
       {error ? (
         <p
@@ -91,10 +97,22 @@ export function BoardScreen() {
           {error instanceof ApiError ? error.message : "データを読み込めませんでした"}
         </p>
       ) : boardQuery.data ? (
-        <BoardView board={boardQuery.data} />
+        <BoardView
+          board={boardQuery.data}
+          onOpenBook={(bookId) => setBookModal({ type: "edit", bookId })}
+        />
       ) : (
         <BoardLoading />
       )}
+      {bookModal && (
+        <BookFormModal
+          mode={bookModal}
+          shelves={shelves}
+          onClose={() => setBookModal(null)}
+          onError={setToast}
+        />
+      )}
+      {toast && <Toast message={toast} onDismiss={dismissToast} />}
     </div>
   );
 }
