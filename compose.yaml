@@ -1,4 +1,6 @@
 # 開発環境（docs/tech-stack.md 6章）
+# ポートは自分のPC（127.0.0.1）からの接続だけを受け付ける。APIには認証がないため、
+# IPアドレスを省略して全体に公開すると、同じネットワークの人がデータを操作できてしまう
 services:
   db:
     image: mysql:8.4
@@ -7,7 +9,7 @@ services:
       TZ: Asia/Tokyo
     command: --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
     ports:
-      - "${DB_PORT:-3306}:3306"
+      - "127.0.0.1:${DB_PORT:-3306}:3306"
     volumes:
       - db-data:/var/lib/mysql
     healthcheck:
@@ -28,7 +30,7 @@ services:
       CORS_ORIGINS: http://localhost:3000
       TZ: Asia/Tokyo
     ports:
-      - "3001:3001"
+      - "127.0.0.1:3001:3001"
     volumes:
       - ./backend:/app
       - bundle:/usr/local/bundle
@@ -46,7 +48,7 @@ services:
       NEXT_PUBLIC_API_BASE_URL: http://localhost:3001/api
       WATCHPACK_POLLING: "true"
     ports:
-      - "3000:3000"
+      - "127.0.0.1:3000:3000"
     volumes:
       - ./frontend:/app
       - frontend-node-modules:/app/node_modules
