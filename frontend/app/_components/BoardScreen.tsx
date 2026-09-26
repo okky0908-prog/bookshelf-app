@@ -4,12 +4,14 @@ import { useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
 import { ApiError, fetchBoard, fetchMonthlyReads, fetchShelves, fetchTags } from "@/lib/api";
-import { addMonths, currentYearMonth, toMonthParam } from "@/lib/month";
+import { addMonths, currentYearMonth, recentMonths, toMonthParam } from "@/lib/month";
 import { useDebouncedValue } from "@/lib/useDebouncedValue";
+import { useGraphOpen } from "@/lib/useGraphOpen";
 import { useMoveBook } from "@/lib/useMoveBook";
 import { AppHeader } from "./AppHeader";
 import { BoardView } from "./BoardView";
 import { BookFormModal, type BookModalMode } from "./BookFormModal";
+import { MonthlyReadsChart } from "./MonthlyReadsChart";
 import { ShelfFormModal, type ShelfModalMode } from "./ShelfFormModal";
 import { ShelfTabs } from "./ShelfTabs";
 import { Toast } from "./Toast";
@@ -64,6 +66,19 @@ export function BoardScreen() {
     select: (data) => data.months[0]?.count ?? 0,
   });
 
+  // 12ヶ月グラフは、今月を含む直近12ヶ月（ヘッダーで月を切り替えても変えない）。開いているときだけ取得する
+  const [graphOpen, setGraphOpen] = useGraphOpen();
+  const [thisMonth] = useState(currentYearMonth);
+  const graphMonths = recentMonths(thisMonth, 12);
+  const graphFrom = toMonthParam(graphMonths[0]);
+  const graphTo = toMonthParam(thisMonth);
+  const graphQuery = useQuery({
+    queryKey: ["monthlyReads", graphFrom, graphTo],
+    queryFn: () => fetchMonthlyReads(graphFrom, graphTo),
+    select: (data) => data.months,
+    enabled: graphOpen,
+  });
+
   const moveBook = useMoveBook(setToast);
 
   const selectShelf = (shelfId: number) => {
@@ -84,7 +99,22 @@ export function BoardScreen() {
         month={month}
         doneCount={monthlyReadsQuery.data}
         onMonthChange={(amount) => setMonth((current) => addMonths(current, amount))}
+        graphOpen={graphOpen}
+        onToggleGraph={() => setGraphOpen(!graphOpen)}
       />
+      {graphOpen && (
+        <MonthlyReadsChart
+          months={graphQuery.data}
+          selectedMonth={month}
+          error={
+            graphQuery.error instanceof ApiError
+              ? graphQuery.error.message
+              : graphQuery.error
+                ? "グラフを読み込めませんでした"
+                : null
+          }
+        />
+      )}
       <ShelfTabs
         shelves={shelves}
         currentShelfId={shelf?.id}

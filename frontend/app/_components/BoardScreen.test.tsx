@@ -68,6 +68,7 @@ function renderScreen() {
 }
 
 beforeEach(() => {
+  window.localStorage.clear();
   searchParams = new URLSearchParams();
   push.mockClear();
 });
@@ -126,6 +127,42 @@ describe("BoardScreen", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "本棚を作成" }));
     expect(screen.getByRole("dialog", { name: "本棚を作成" })).toBeInTheDocument();
+  });
+
+  it("［グラフ］で直近12ヶ月のグラフを開閉し、開閉状態をブラウザに保存する", async () => {
+    vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-09-27T12:00:00+09:00") });
+    const fetchMock = mockApi();
+    renderScreen();
+    await screen.findByText("仕事の本");
+
+    const toggle = screen.getByRole("button", { name: "グラフ" });
+    expect(toggle).toHaveAttribute("aria-expanded", "false");
+    expect(screen.queryByRole("region", { name: "直近12ヶ月の読了冊数" })).not.toBeInTheDocument();
+
+    fireEvent.click(toggle);
+
+    expect(toggle).toHaveAttribute("aria-expanded", "true");
+    expect(screen.getByRole("region", { name: "直近12ヶ月の読了冊数" })).toBeInTheDocument();
+    expect(window.localStorage.getItem("bookshelf:graph-open")).toBe("true");
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringContaining("/stats/monthly_reads?from=2025-10&to=2026-09"),
+        expect.any(Object),
+      ),
+    );
+
+    fireEvent.click(toggle);
+    expect(screen.queryByRole("region", { name: "直近12ヶ月の読了冊数" })).not.toBeInTheDocument();
+    expect(window.localStorage.getItem("bookshelf:graph-open")).toBe("false");
+  });
+
+  it("前回グラフを開いていたら、開いた状態で表示する", async () => {
+    window.localStorage.setItem("bookshelf:graph-open", "true");
+    mockApi();
+    renderScreen();
+
+    expect(await screen.findByRole("region", { name: "直近12ヶ月の読了冊数" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "グラフ" })).toHaveAttribute("aria-expanded", "true");
   });
 
   it("指定月の読了冊数を表示し、［<］［>］で月を切り替える", async () => {
