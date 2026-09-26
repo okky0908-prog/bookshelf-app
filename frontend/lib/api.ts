@@ -85,6 +85,27 @@ export function fetchShelves() {
   return apiFetch<{ shelves: Shelf[] }>("/shelves");
 }
 
+/** API-02 本棚の作成 */
+export function createShelf(name: string) {
+  return apiFetch<{ shelf: Shelf }>("/shelves", {
+    method: "POST",
+    body: JSON.stringify({ shelf: { name } }),
+  });
+}
+
+/** API-03 本棚名の変更 */
+export function updateShelf(shelfId: number, name: string) {
+  return apiFetch<{ shelf: Shelf }>(`/shelves/${shelfId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ shelf: { name } }),
+  });
+}
+
+/** API-04 本棚の削除 */
+export function deleteShelf(shelfId: number) {
+  return apiFetch<void>(`/shelves/${shelfId}`, { method: "DELETE" });
+}
+
 /** API-05 ボード（3列の書籍） */
 export function fetchBoard(shelfId: number, { q, tagId }: BoardFilter) {
   return apiFetch<Board>(withQuery(`/shelves/${shelfId}/books`, { q, tag_id: tagId }));

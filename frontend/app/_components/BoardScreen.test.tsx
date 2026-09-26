@@ -112,6 +112,22 @@ describe("BoardScreen", () => {
     expect(push).toHaveBeenCalledWith("/?shelf=2", { scroll: false });
   });
 
+  it("表示中のタブにだけ［⚙］を出し、［⚙］［＋］で本棚のモーダルを開く", async () => {
+    mockApi();
+    renderScreen();
+    await screen.findByText("仕事の本");
+
+    expect(screen.getAllByRole("button", { name: "本棚の設定" })).toHaveLength(1);
+
+    fireEvent.click(screen.getByRole("button", { name: "本棚の設定" }));
+    expect(screen.getByRole("dialog", { name: "本棚の設定" })).toBeInTheDocument();
+    expect(screen.getByLabelText(/^本棚名/)).toHaveValue("仕事用");
+    fireEvent.click(screen.getByRole("button", { name: "キャンセル" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "本棚を作成" }));
+    expect(screen.getByRole("dialog", { name: "本棚を作成" })).toBeInTheDocument();
+  });
+
   it("指定月の読了冊数を表示し、［<］［>］で月を切り替える", async () => {
     vi.useFakeTimers({ toFake: ["Date"], now: new Date("2026-09-27T12:00:00+09:00") });
     const fetchMock = mockApi();

@@ -9,6 +9,7 @@ import { useDebouncedValue } from "@/lib/useDebouncedValue";
 import { AppHeader } from "./AppHeader";
 import { BoardView } from "./BoardView";
 import { BookFormModal, type BookModalMode } from "./BookFormModal";
+import { ShelfFormModal, type ShelfModalMode } from "./ShelfFormModal";
 import { ShelfTabs } from "./ShelfTabs";
 import { Toast } from "./Toast";
 import { Toolbar } from "./Toolbar";
@@ -26,6 +27,7 @@ export function BoardScreen() {
   const [tagId, setTagId] = useState("");
   const q = useDebouncedValue(keyword.trim(), SEARCH_DELAY_MS);
   const [bookModal, setBookModal] = useState<BookModalMode | null>(null);
+  const [shelfModal, setShelfModal] = useState<ShelfModalMode | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const dismissToast = useCallback(() => setToast(null), []);
 
@@ -79,7 +81,13 @@ export function BoardScreen() {
         doneCount={monthlyReadsQuery.data}
         onMonthChange={(amount) => setMonth((current) => addMonths(current, amount))}
       />
-      <ShelfTabs shelves={shelves} currentShelfId={shelf?.id} onSelect={selectShelf} />
+      <ShelfTabs
+        shelves={shelves}
+        currentShelfId={shelf?.id}
+        onSelect={selectShelf}
+        onOpenSettings={(target) => setShelfModal({ type: "edit", shelf: target })}
+        onCreate={() => setShelfModal({ type: "create" })}
+      />
       <Toolbar
         keyword={keyword}
         tagId={tagId}
@@ -109,6 +117,24 @@ export function BoardScreen() {
           mode={bookModal}
           shelves={shelves}
           onClose={() => setBookModal(null)}
+          onError={setToast}
+        />
+      )}
+      {shelfModal && (
+        <ShelfFormModal
+          mode={shelfModal}
+          shelfCount={shelves.length}
+          onClose={() => setShelfModal(null)}
+          onCreated={(created) => {
+            // 作成した本棚に切り替える（docs/screens.md 6章）
+            setShelfModal(null);
+            selectShelf(created.id);
+          }}
+          onDeleted={() => {
+            // 残っている最初の本棚を表示する（docs/screens.md 3章）
+            setShelfModal(null);
+            router.push("/", { scroll: false });
+          }}
           onError={setToast}
         />
       )}
