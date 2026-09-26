@@ -3,7 +3,12 @@ import type { Board } from "@/lib/types";
 import { BookCardView } from "./BookCardView";
 
 /** D. ボード（docs/screens.md 4.2）。「未読」「読書中」「読了」の3列 */
-export function BoardView({ board }: { board: Board }) {
+type Props = {
+  board: Board;
+  onOpenBook: (bookId: number) => void;
+};
+
+export function BoardView({ board, onOpenBook }: Props) {
   const noResults =
     board.filtered && STATUSES.every(({ key }) => board.columns[key].books.length === 0);
 
@@ -39,7 +44,9 @@ export function BoardView({ board }: { board: Board }) {
                 {books.length === 0 ? (
                   <p className="my-6 text-center text-faint">書籍はありません</p>
                 ) : (
-                  books.map((book) => <BookCardView key={book.id} book={book} />)
+                  books.map((book) => (
+                    <BookCardView key={book.id} book={book} onOpen={onOpenBook} />
+                  ))
                 )}
               </div>
             </section>

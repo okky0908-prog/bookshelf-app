@@ -20,6 +20,12 @@ export function currentYearMonth(now: Date = new Date()): YearMonth {
   return { year: value("year"), month: value("month") };
 }
 
+/** 今日の日付（YYYY-MM-DD）。今月と同じく Asia/Tokyo で決める */
+export function todayInTokyo(now: Date = new Date()): string {
+  // en-CA は YYYY-MM-DD の形で日付を出す
+  return new Intl.DateTimeFormat("en-CA", { timeZone: "Asia/Tokyo" }).format(now);
+}
+
 export function addMonths({ year, month }: YearMonth, amount: number): YearMonth {
   const index = year * 12 + (month - 1) + amount;
   return { year: Math.floor(index / 12), month: (index % 12) + 1 };

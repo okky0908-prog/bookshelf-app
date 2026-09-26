@@ -1,5 +1,6 @@
 import type { Tag } from "@/lib/types";
-import { SearchIcon } from "./icons";
+import { buttonClass } from "./buttons";
+import { PlusIcon, SearchIcon } from "./icons";
 
 type Props = {
   keyword: string;
@@ -8,10 +9,20 @@ type Props = {
   onKeywordChange: (keyword: string) => void;
   onTagChange: (tagId: string) => void;
   onClear: () => void;
+  /** ［＋書籍を追加］で登録モーダルを開く */
+  onAdd: () => void;
 };
 
 /** C. ツールバー（docs/screens.md 4.2）。入力すると自動で絞り込む */
-export function Toolbar({ keyword, tagId, tags, onKeywordChange, onTagChange, onClear }: Props) {
+export function Toolbar({
+  keyword,
+  tagId,
+  tags,
+  onKeywordChange,
+  onTagChange,
+  onClear,
+  onAdd,
+}: Props) {
   const field = "h-10 rounded-lg border border-field-line bg-surface text-ink";
   const filtering = keyword !== "" || tagId !== "";
 
@@ -52,6 +63,14 @@ export function Toolbar({ keyword, tagId, tags, onKeywordChange, onTagChange, on
         className={`${field} px-4 hover:bg-ground disabled:opacity-45 disabled:hover:bg-surface`}
       >
         クリア
+      </button>
+      <button
+        type="button"
+        onClick={onAdd}
+        className={`${buttonClass.primary} ml-auto flex items-center gap-1.5 pr-4.5 pl-3.5`}
+      >
+        <PlusIcon />
+        書籍を追加
       </button>
     </div>
   );
