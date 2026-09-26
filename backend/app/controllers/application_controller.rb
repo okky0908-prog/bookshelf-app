@@ -1,6 +1,7 @@
 class ApplicationController < ActionController::API
   # エラーは共通の形式で返す（docs/api.md 3.2）
   rescue_from ActiveRecord::RecordNotFound, with: :render_not_found
+  rescue_from ActiveRecord::RecordInvalid, with: ->(exception) { render_validation_failed(exception.record) }
   rescue_from ActionController::ParameterMissing, ActionDispatch::Http::Parameters::ParseError,
               with: :render_bad_request
 
