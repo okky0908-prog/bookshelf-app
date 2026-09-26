@@ -140,3 +140,16 @@ RSpec.describe "本棚のAPI", type: :request do
     end
   end
 end
+
+RSpec.describe "本棚のAPI（同時に操作した場合）", type: :request do
+  it "確認のあとに書籍が追加されていて削除できなかった場合も、409 shelf_not_empty を返す" do
+    shelf = create(:shelf)
+    create(:shelf)
+    allow_any_instance_of(Shelf).to receive(:destroy!).and_raise(ActiveRecord::InvalidForeignKey)
+
+    delete "/api/shelves/#{shelf.id}"
+
+    expect(response).to have_http_status(:conflict)
+    expect(response.parsed_body.dig("error", "code")).to eq "shelf_not_empty"
+  end
+end

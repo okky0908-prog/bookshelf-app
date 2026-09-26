@@ -16,6 +16,8 @@ Rails.application.routes.draw do
     resources :tags, only: %i[index]
     get "stats/monthly_reads", to: "stats#monthly_reads"
   end
+  # /api の存在しないURLも、共通の形式の 404 を返す（ほかのルートより後に書く）
+  match "api/*path", to: "application#route_not_found", via: :all
 
   # Defines the root path route ("/")
   # root "posts#index"
