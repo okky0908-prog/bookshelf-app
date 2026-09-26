@@ -1,6 +1,6 @@
 // Rails API の呼び出しをまとめる（docs/api.md）
 
-import type { Board, Book, BookInput, MonthlyRead, Shelf, Tag } from "./types";
+import type { Board, Book, BookInput, MonthlyRead, Shelf, Status, Tag } from "./types";
 
 export const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:3001/api";
 
@@ -129,6 +129,14 @@ export function updateBook(bookId: number, book: BookInput) {
   return apiFetch<{ book: Book }>(`/books/${bookId}`, {
     method: "PATCH",
     body: JSON.stringify({ book }),
+  });
+}
+
+/** API-09 書籍の列・並び順の変更。position を省略すると列の末尾に置く */
+export function moveBook(bookId: number, status: Status, position?: number) {
+  return apiFetch<{ book: Book }>(`/books/${bookId}/move`, {
+    method: "PATCH",
+    body: JSON.stringify({ status, position }),
   });
 }
 

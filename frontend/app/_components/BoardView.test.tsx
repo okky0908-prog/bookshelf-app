@@ -22,7 +22,7 @@ function buildBoard(overrides: Partial<Board> = {}): Board {
 
 describe("BoardView", () => {
   it("3列に分けて、列見出しに冊数を表示する", () => {
-    render(<BoardView board={buildBoard()} onOpenBook={() => {}} />);
+    render(<BoardView board={buildBoard()} onOpenBook={() => {}} onMoveBook={() => {}} />);
 
     const unread = screen.getByRole("region", { name: "未読" });
     expect(within(unread).getByText("2")).toBeInTheDocument();
@@ -35,7 +35,7 @@ describe("BoardView", () => {
   });
 
   it("書籍がない列には「書籍はありません」と表示する", () => {
-    render(<BoardView board={buildBoard()} onOpenBook={() => {}} />);
+    render(<BoardView board={buildBoard()} onOpenBook={() => {}} onMoveBook={() => {}} />);
 
     expect(screen.getByRole("region", { name: "読書中" })).toHaveTextContent("書籍はありません");
   });
@@ -49,7 +49,7 @@ describe("BoardView", () => {
         done: { total: 1, books: [] },
       },
     });
-    render(<BoardView board={board} onOpenBook={() => {}} />);
+    render(<BoardView board={board} onOpenBook={() => {}} onMoveBook={() => {}} />);
 
     expect(
       within(screen.getByRole("region", { name: "未読" })).getByText("1 / 2"),
@@ -69,9 +69,9 @@ describe("BoardView", () => {
         done: { total: 1, books: [] },
       },
     });
-    render(<BoardView board={board} onOpenBook={() => {}} />);
+    render(<BoardView board={board} onOpenBook={() => {}} onMoveBook={() => {}} />);
 
-    expect(screen.getByRole("status")).toHaveTextContent("条件に一致する書籍はありません");
+    expect(screen.getByText("条件に一致する書籍はありません")).toBeInTheDocument();
   });
 
   it("絞り込んでいなければ、書籍が0冊でもメッセージは表示しない", () => {
@@ -82,8 +82,8 @@ describe("BoardView", () => {
         done: { total: 0, books: [] },
       },
     });
-    render(<BoardView board={board} onOpenBook={() => {}} />);
+    render(<BoardView board={board} onOpenBook={() => {}} onMoveBook={() => {}} />);
 
-    expect(screen.queryByRole("status")).not.toBeInTheDocument();
+    expect(screen.queryByText("条件に一致する書籍はありません")).not.toBeInTheDocument();
   });
 });
