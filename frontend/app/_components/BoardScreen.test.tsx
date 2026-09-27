@@ -1,11 +1,13 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { fireEvent, render, screen, waitFor, within } from "@testing-library/react";
+import { act, fireEvent, render, screen, waitFor, within } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { Board } from "@/lib/types";
 import { BoardScreen } from "./BoardScreen";
 
 const push = vi.fn();
 let searchParams = new URLSearchParams();
+/** タグの一覧（API-11）が返すタグ。テストの途中で変えられるようにする */
+let tags = [{ id: 4, name: "小説" }];
 
 vi.mock("next/navigation", () => ({
   useRouter: () => ({ push }),
@@ -44,7 +46,7 @@ function mockApi() {
         ],
       });
     }
-    if (path === "/tags") return json({ tags: [{ id: 4, name: "小説" }] });
+    if (path === "/tags") return json({ tags });
     if (path === "/stats/monthly_reads") {
       return json({ months: [{ month: url.searchParams.get("from"), count: 3 }] });
     }
@@ -60,14 +62,16 @@ function mockApi() {
 
 function renderScreen() {
   const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
-  return render(
+  render(
     <QueryClientProvider client={client}>
       <BoardScreen />
     </QueryClientProvider>,
   );
+  return client;
 }
 
 beforeEach(() => {
+  tags = [{ id: 4, name: "小説" }];
   window.localStorage.clear();
   searchParams = new URLSearchParams();
   push.mockClear();
@@ -205,6 +209,29 @@ describe("BoardScreen", () => {
 
     expect(screen.getByRole("combobox")).toHaveValue("");
     expect(await within(unread).findByText("1")).toBeInTheDocument();
+  });
+
+  it("絞り込みに使っていたタグが削除されたら、「すべて」に戻す", async () => {
+    const fetchMock = mockApi();
+    const client = renderScreen();
+    await screen.findByRole("option", { name: "小説" });
+
+    fireEvent.change(screen.getByRole("combobox"), { target: { value: "4" } });
+    await screen.findByText("1 / 1");
+
+    // 書籍を保存して、タグ「小説」がどの書籍にも付いていなくなった
+    tags = [];
+    fetchMock.mockClear();
+    await act(() => client.invalidateQueries({ queryKey: ["tags"] }));
+
+    await waitFor(() => expect(screen.getByRole("combobox")).toHaveValue(""));
+    await waitFor(() =>
+      expect(fetchMock).toHaveBeenCalledWith(
+        expect.stringMatching(/\/shelves\/1\/books$/),
+        expect.any(Object),
+      ),
+    );
+    expect(screen.getByRole("button", { name: "クリア" })).toBeDisabled();
   });
 
   it("キーワードは入力が止まってから絞り込む", async () => {
