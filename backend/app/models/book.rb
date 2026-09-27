@@ -35,6 +35,10 @@ class Book < ApplicationRecord
   after_update :compact_previous_column, if: :column_changed?
   after_destroy :compact_column
   after_save :replace_tags, if: -> { @tag_names }
+  # 書籍を削除したら、どの書籍にも付いていないタグも削除する。
+  # タグ付け（book_tags）は dependent: :destroy で先に消えるため、その前に付いていたタグを覚えておく
+  before_destroy :remember_tag_ids, prepend: true
+  after_destroy -> { Tag.delete_unused(@tag_ids_before_destroy) }
 
   scope :in_column, ->(shelf_id, status) { where(shelf_id:, status:) }
 
@@ -136,8 +140,15 @@ class Book < ApplicationRecord
     self.class.renumber(self.class.in_column(shelf_id, status).lock.order(:position, :id).to_a)
   end
 
+  # 外したタグが、どの書籍にも付いていなければ削除する
   def replace_tags
+    previous_ids = tag_ids
     self.tags = @tag_names.map { Tag.find_or_create_by_name!(it) }.uniq
+    Tag.delete_unused(previous_ids - tag_ids)
     @tag_names = nil
+  end
+
+  def remember_tag_ids
+    @tag_ids_before_destroy = tag_ids
   end
 end

@@ -204,10 +204,11 @@ RSpec.describe "書籍のAPI", type: :request do
       expect(json.dig("book", "tags").map { it["name"] }).to eq [ "小説" ]
     end
 
-    it "tag_names を送ると、タグをその内容に置き換える" do
+    it "tag_names を送ると、タグをその内容に置き換える。外したタグは、どの書籍にも付いていなければ削除する" do
       patch "/api/books/#{book.id}", params: { book: { tag_names: [ "SF" ] } }, as: :json
 
       expect(json.dig("book", "tags").map { it["name"] }).to eq [ "SF" ]
+      expect(Tag.pluck(:name)).to eq [ "SF" ]
     end
 
     it "日付・評価は送った値をそのまま保存する" do

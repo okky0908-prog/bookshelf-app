@@ -45,6 +45,26 @@ RSpec.describe Tag, type: :model do
     end
   end
 
+  describe ".delete_unused" do
+    it "指定したタグのうち、どの書籍にも付いていないものだけを削除する" do
+      used = create(:tag, name: "使っている")
+      unused = create(:tag, name: "使っていない")
+      other = create(:tag, name: "指定していない")
+      create(:book).tags << used
+
+      Tag.delete_unused([ used.id, unused.id ])
+
+      expect(Tag.pluck(:name)).to contain_exactly("使っている", "指定していない")
+      expect(Tag.exists?(other.id)).to be true
+    end
+
+    it "空の配列なら何もしない" do
+      create(:tag)
+
+      expect { Tag.delete_unused([]) }.not_to change(Tag, :count)
+    end
+  end
+
   describe "入力チェック" do
     it "保存時に normalized_name を入れる" do
       expect(create(:tag, name: "ミステリー").normalized_name).to eq "みすてりー"

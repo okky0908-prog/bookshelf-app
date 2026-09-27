@@ -27,7 +27,7 @@ export function BoardScreen() {
 
   const [month, setMonth] = useState(currentYearMonth);
   const [keyword, setKeyword] = useState("");
-  const [tagId, setTagId] = useState("");
+  const [selectedTagId, setTagId] = useState("");
   const q = useDebouncedValue(keyword.trim(), SEARCH_DELAY_MS);
   const [bookModal, setBookModal] = useState<BookModalMode | null>(null);
   const [shelfModal, setShelfModal] = useState<ShelfModalMode | null>(null);
@@ -44,6 +44,17 @@ export function BoardScreen() {
   const shelfParam = Number(searchParams.get("shelf"));
   const shelf = shelves.find(({ id }) => id === shelfParam) ?? shelves[0];
 
+  const tagsQuery = useQuery({
+    queryKey: ["tags"],
+    queryFn: () => fetchTags(),
+    select: (data) => data.tags,
+  });
+  // 絞り込みに使っていたタグが削除された（どの書籍にも付いていなくなった）場合は「すべて」に戻す
+  const tagId =
+    selectedTagId !== "" && tagsQuery.data?.every(({ id }) => String(id) !== selectedTagId)
+      ? ""
+      : selectedTagId;
+
   const boardKey = ["board", shelf?.id, { q, tagId }];
   const boardQuery = useQuery({
     queryKey: boardKey,
@@ -51,12 +62,6 @@ export function BoardScreen() {
     enabled: shelf !== undefined,
     // 同じ本棚で条件だけ変えたときは、読み込み中も前の結果を表示したままにする（別の本棚の結果は出さない）
     placeholderData: (previous) => (previous?.shelf_id === shelf?.id ? previous : undefined),
-  });
-
-  const tagsQuery = useQuery({
-    queryKey: ["tags"],
-    queryFn: () => fetchTags(),
-    select: (data) => data.tags,
   });
 
   const monthParam = toMonthParam(month);

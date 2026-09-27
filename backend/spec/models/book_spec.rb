@@ -287,6 +287,20 @@ RSpec.describe Book, type: :model do
       expect(book.reload.tags).to be_empty
     end
 
+    it "外したタグが、どの書籍にも付いていなければ削除する" do
+      book.update!(tag_names: [ "小説", "打ち間違い" ])
+
+      expect { book.update!(tag_names: [ "小説" ]) }.to change(Tag, :count).by(-1)
+      expect(Tag.pluck(:name)).to eq [ "小説" ]
+    end
+
+    it "外したタグが、ほかの書籍に付いていれば残す" do
+      book.update!(tag_names: [ "小説" ])
+      create(:book).update!(tag_names: [ "小説" ])
+
+      expect { book.update!(tag_names: []) }.not_to change(Tag, :count)
+    end
+
     it "30文字を超えるタグ名があればエラーにし、タグを作らない" do
       expect { book.update(tag_names: [ "あ" * 31 ]) }.not_to change(Tag, :count)
       expect(book.errors.to_hash(true)).to eq(tag_names: [ "タグ名は30文字以内で入力してください" ])
@@ -304,13 +318,16 @@ RSpec.describe Book, type: :model do
       expect(book.reload.tags).to eq [ later, earlier ]
     end
 
-    it "書籍を削除すると、タグ付けも消える（タグは残る）" do
+    it "書籍を削除すると、タグ付けも消え、どの書籍にも付いていないタグは削除する" do
       book = create(:book)
-      tag = create(:tag)
-      book.tags << tag
+      shared = create(:tag, name: "小説")
+      only = create(:tag, name: "この本だけ")
+      book.tags << shared << only
+      create(:book).tags << shared
 
-      expect { book.destroy }.to change(BookTag, :count).by(-1)
-      expect(Tag.exists?(tag.id)).to be true
+      expect { book.destroy }.to change(BookTag, :count).by(-2)
+      expect(Tag.exists?(shared.id)).to be true
+      expect(Tag.exists?(only.id)).to be false
     end
   end
 
