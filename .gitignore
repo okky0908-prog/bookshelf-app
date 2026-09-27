@@ -3,3 +3,10 @@
 
 # macOS
 .DS_Store
+
+# Terraform（state にはパスワードなどが平文で残るため、Git に含めない）
+infra/.terraform/
+infra/*.tfstate
+infra/*.tfstate.*
+infra/terraform.tfvars
+infra/tfplan

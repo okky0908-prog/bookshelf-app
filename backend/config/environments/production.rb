@@ -19,10 +19,12 @@ Rails.application.configure do
   # config.asset_host = "http://assets.example.com"
 
   # Assume all access to the app is happening through a SSL-terminating reverse proxy.
-  config.assume_ssl = true
+  # AWS では、ドメイン名なしの公開IP（HTTP）で動かすため、HTTPS を前提にしない（docs/infrastructure.md）
+  # HTTPS にしたら、環境変数 FORCE_SSL=true で有効にする
+  config.assume_ssl = ENV["FORCE_SSL"] == "true"
 
   # Force all access to the app over SSL, use Strict-Transport-Security, and use secure cookies.
-  config.force_ssl = true
+  config.force_ssl = ENV["FORCE_SSL"] == "true"
 
   # Skip http-to-https redirect for the default health check endpoint.
   # config.ssl_options = { redirect: { exclude: ->(request) { request.path == "/up" } } }

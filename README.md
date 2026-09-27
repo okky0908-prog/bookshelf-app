@@ -2,7 +2,7 @@
 
 個人の読書記録を管理する、シンプルな本棚Webアプリケーション。スクール課題（初級編最終課題）として、指定技術スタック（Next.js / Ruby on Rails / MySQL）での要件定義〜設計〜実装を一人で経験することを主目的に開発した。
 
-想定利用者は開発者本人のみ（1ユーザー）で、ログイン・認証機能は持たない。ローカル環境（Docker）だけで動かし、インターネットには公開しない。詳細は[要件定義書](docs/requirements.md)を参照。
+想定利用者は開発者本人のみ（1ユーザー）で、ログイン・認証機能は持たない。開発はローカル環境（Docker）で行い、学習目的で AWS（EC2・RDS）にもデプロイしている（サイト全体に Basic 認証をかけている）。詳細は[要件定義書](docs/requirements.md)を参照。
 
 ![本棚ボード画面](docs/images/board.png)
 
@@ -24,7 +24,8 @@
 | フロントエンド | Next.js 16（App Router、React 19） + TypeScript 6.0 + Tailwind CSS 4 / TanStack Query・dnd-kit・Recharts |
 | バックエンド | Ruby 4.0 + Ruby on Rails 8.1（APIモード） |
 | データベース | MySQL 8.4 |
-| 開発環境 | Docker Compose（ローカルのみ） / GitHub Actions（CI） |
+| 開発環境 | Docker Compose / GitHub Actions（CI） |
+| インフラ | AWS（EC2 × 2・RDS for MySQL）、Terraform、nginx |
 
 前回のTrello風アプリ（Java/Spring Boot + React/Vite + PostgreSQL）とは異なる技術スタックとする方針で選定した。バージョン・ライブラリの詳細と選定理由は[技術スタック詳細](docs/tech-stack.md)を参照。
 
@@ -35,6 +36,7 @@
 ├── frontend/     # Next.js フロントエンド
 ├── backend/      # Ruby on Rails バックエンド（API）
 ├── docs/         # 要件定義・設計ドキュメント
+├── infra/        # AWS の構築（Terraform）とデプロイのスクリプト
 ├── compose.yaml  # 開発環境（Docker Compose）
 └── .github/      # CI（GitHub Actions）
 ```
@@ -84,6 +86,20 @@ docker compose up         # db / backend / frontend を起動する
 | 起動時に `port is already allocated` と出る | 3000・3001・3306 のどれかをほかのアプリが使っている。MySQL（3306）なら `.env` の `DB_PORT` を変える（例：`3307`）。3000・3001 なら、使っているアプリを止める |
 | `.env に DB_PASSWORD を設定してください` と出る | `.env` がない。`cp .env.example .env` を実行する |
 | 画面の表示が古いまま変わらない | ブラウザを再読み込みする。直らなければ `docker compose restart frontend` |
+
+## AWS へのデプロイ
+
+フロントエンド（nginx）とバックエンド（Rails）を別々の EC2 に置き、データベースは RDS for MySQL を使う。構築は Terraform（`infra/`）で行い、費用は AWS の無料利用枠に収める。構成・費用・運用の詳細は[インフラ構成](docs/infrastructure.md)を参照。
+
+| 内容 | コマンド（`infra/` で実行） |
+|---|---|
+| 構築する（初回） | `cp terraform.tfvars.example terraform.tfvars` で値を入れてから、`terraform init` → `terraform plan` → `terraform apply` |
+| アプリを配置・更新する | `./deploy.sh` |
+| 使い始める・使い終わる | `./servers.sh start` ／ `./servers.sh stop`（EC2 の無料枠は2台合計で月750時間のため、使わないときは止める） |
+| すべて削除する | `terraform destroy` |
+
+- アプリのURLは `http://<フロントエンドのサーバーの公開IP>/`（起動のたびに変わる。`./servers.sh start` が表示する）。Basic 認証のパスワードは `infra/terraform.tfvars` にある
+- 2台とも、止め忘れに備えて毎日0時（日本時間）に自動で止まる
 
 ## 使い方
 
@@ -179,6 +195,7 @@ Issue作成 → ブランチ作成 → コミット → PR作成の運用ルー�
 | [DB設計書](docs/database.md) | テーブル定義、並び順・ステータス変更時の扱い |
 | [API設計書](docs/api.md) | エンドポイント、リクエスト・レスポンス、エラーの形式 |
 | [技術スタック詳細](docs/tech-stack.md) | バージョン、ライブラリ、構成、選定理由 |
+| [インフラ構成](docs/infrastructure.md) | AWS の構成、セキュリティグループ、費用、デプロイと運用 |
 
 ## 現在の進捗状況
 
@@ -191,3 +208,4 @@ Issue作成 → ブランチ作成 → コミット → PR作成の運用ルー�
   - [x] 書籍の登録・編集モーダル、本棚の作成・設定モーダル、削除の確認
   - [x] ドラッグ&ドロップ
   - [x] 直近12ヶ月のグラフ
+- [x] AWS（EC2・RDS）へのデプロイ（Terraform）
