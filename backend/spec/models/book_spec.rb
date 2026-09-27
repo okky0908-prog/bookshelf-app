@@ -42,6 +42,13 @@ RSpec.describe Book, type: :model do
         .to eq [ "書影URLは http:// または https:// で始まるURLを入力してください" ]
     end
 
+    it "書影URLは、途中に空白や改行を含んだり、https:// だけだったりすると無効" do
+      [ "https://example.com/a b.jpg", "https://example.com/a.jpg\njavascript:alert(1)", "https://" ].each do |url|
+        expect(errors_for(build(:book, cover_image_url: url)))
+          .to eq([ "書影URLは http:// または https:// で始まるURLを入力してください" ]), url
+      end
+    end
+
     it "書影URLは2048文字まで" do
       url = "https://example.com/#{"a" * 2028}"
       expect(build(:book, cover_image_url: url)).to be_valid

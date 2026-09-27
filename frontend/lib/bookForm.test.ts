@@ -107,6 +107,14 @@ describe("validateBookForm", () => {
     });
   });
 
+  it("書影URLは、途中に空白を含んだり、https:// だけだったりするとエラー", () => {
+    for (const url of ["https://example.com/a b.jpg", "https://"]) {
+      expect(validateBookForm(form({ cover_image_url: url }))).toEqual({
+        cover_image_url: ["書影URLは http:// または https:// で始まるURLを入力してください"],
+      });
+    }
+  });
+
   it("書影URLは http:// または https:// で始まる", () => {
     expect(validateBookForm(form({ cover_image_url: "ftp://example.com/a.jpg" }))).toEqual({
       cover_image_url: ["書影URLは http:// または https:// で始まるURLを入力してください"],
