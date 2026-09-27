@@ -14,8 +14,9 @@ class Book < ApplicationRecord
   validate :shelf_must_exist
   validates :title, presence: true, length: { maximum: 255 }
   validates :author, length: { maximum: 255 }
+  # URL 全体が「http:// または https:// ＋空白を含まない文字列」であることを確かめる（先頭だけだと、途中に改行などがあっても通る）
   validates :cover_image_url, length: { maximum: 2048 },
-                              format: { with: %r{\Ahttps?://}, message: :http_url, allow_nil: true }
+                              format: { with: %r{\Ahttps?://\S+\z}, message: :http_url, allow_nil: true }
   validates :memo, length: { maximum: 10_000 }
   validates :rating, numericality: { only_integer: true, in: 1..5, allow_nil: true, message: :rating_range }
   # 状態ごとに持てる項目の組み合わせ（docs/database.md 4.1、docs/api.md 5.2）
@@ -27,7 +28,7 @@ class Book < ApplicationRecord
   # 並び順（docs/database.md 5章）
   # 新しく登録した書籍や、本棚・ステータスが変わった書籍は、移動先の列の末尾に置き、移動元の列を詰める
   # 並び順を変える前に、関係する本棚の行をロックする（下の lock_shelves を参照）
-  # before_validation と before_destroy は、保存・削除のトランザクションの中で最初に呼ばれる
+  # どちらも保存・削除のトランザクションの中で、並び順を変える処理より前に呼ばれる
   before_validation :lock_shelves
   before_destroy :lock_shelves
   before_validation :append_to_column, on: :create, if: -> { position.nil? && shelf && status }

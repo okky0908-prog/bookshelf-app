@@ -82,6 +82,14 @@ function length(value: string) {
   return [...value].length;
 }
 
+/**
+ * http:// または https:// で始まり、空白を含まない URL か（バックエンドの Book の形式チェックと同じ）
+ * 書影のプレビューを出すかどうかの判定にも使う
+ */
+export function isHttpUrl(value: string): boolean {
+  return /^https?:\/\/\S+$/.test(value);
+}
+
 /** 入力チェック（docs/database.md 9章、docs/api.md 5.2）。メッセージはバックエンドと同じにする */
 export function validateBookForm(form: BookForm): BookFormErrors {
   const errors: BookFormErrors = {};
@@ -95,7 +103,7 @@ export function validateBookForm(form: BookForm): BookFormErrors {
   if (length(form.author.trim()) > 255) add("author", "著者名は255文字以内で入力してください");
 
   const url = form.cover_image_url.trim();
-  if (url !== "" && !/^https?:\/\//.test(url)) {
+  if (url !== "" && !isHttpUrl(url)) {
     add("cover_image_url", "書影URLは http:// または https:// で始まるURLを入力してください");
   }
   if (length(url) > 2048) add("cover_image_url", "書影URLは2048文字以内で入力してください");

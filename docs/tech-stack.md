@@ -57,7 +57,7 @@ flowchart LR
 | 用途 | ライブラリ | バージョン | 使う場面 |
 |---|---|---|---|
 | データ取得・保存 | TanStack Query（`@tanstack/react-query`） | 5.x | APIの呼び出し、取得したデータの保持（キャッシュ）、保存後の取り直し、ドラッグ&ドロップの楽観的更新（先に画面を変え、失敗したら戻す） |
-| ドラッグ&ドロップ | dnd-kit（`@dnd-kit/core`、`@dnd-kit/sortable`） | 6.x / 10.x | ボードの列の間・列の中でのカードの移動 |
+| ドラッグ&ドロップ | dnd-kit（`@dnd-kit/core`） | 6.x | ボードの列の間・列の中でのカードの移動 |
 | グラフ | Recharts | 3.x | 12ヶ月の読了冊数の棒グラフ |
 
 - APIの呼び出しは、ブラウザ標準の `fetch` を包んだ小さな関数（`lib/api.ts`）にまとめる。エラーの形式（api.md 3.2）の読み取りもここで行う
@@ -169,7 +169,7 @@ frontend/
 | Next.js のルーター | App Router | Pages Router | 現在の Next.js の標準で、新しく作るならこちらが推奨されている。学習する価値も高い |
 | レンダリング方式 | クライアントコンポーネントでAPIを直接呼ぶ（CSR） | サーバーコンポーネントでデータを取得する（SSR） | 画面はドラッグ&ドロップや絞り込みなど操作が中心で、ログインも検索エンジン向けの対策も不要なため、SSRの利点が小さい。SSRにすると、Next.js のサーバーから見た Rails の場所（コンテナ間の `backend:3001`）と、ブラウザから見た場所（`localhost:3001`）の2つを扱う必要があり、構成が複雑になる |
 | データ取得のライブラリ | TanStack Query | SWR／fetch と useState のみ | 保存後の取り直し（api.md 8章）や、ドラッグ&ドロップで先に画面を変えて失敗したら戻す動き（画面設計書4.4）を、用意された仕組みで書ける。現場でも広く使われている |
-| ドラッグ&ドロップ | dnd-kit（`@dnd-kit/core` / `@dnd-kit/sortable`） | `@hello-pangea/dnd`／Pragmatic drag and drop／`@dnd-kit/react`（新版） | 列の間の移動と列の中での並べ替えの両方ができ、利用例や資料が最も多い。後継の `@dnd-kit/react` はまだ 1.0 未満のため、安定している現行版を使う |
+| ドラッグ&ドロップ | dnd-kit（`@dnd-kit/core`） | `@hello-pangea/dnd`／Pragmatic drag and drop／`@dnd-kit/react`（新版） | 列の間の移動と列の中での並べ替えの両方ができ、利用例や資料が最も多い。後継の `@dnd-kit/react` はまだ 1.0 未満のため、安定している現行版を使う。並べ替え用の `@dnd-kit/sortable` も入れていたが、ドロップ位置を線で示す設計（screens.md 4.4）には `@dnd-kit/core` だけで足りたため外した |
 | グラフ | Recharts | Chart.js（react-chartjs-2）／自作のSVG | Reactのコンポーネントとして書け、棒グラフ1つなら設定も少ない |
 | Rails の構成 | APIモード | フルスタック | 画面は Next.js で作るため（api.md 9章） |
 | JSONの組み立て | 自作のシリアライザクラス | Jbuilder／外部のシリアライザgem | レスポンスの形は数種類だけで、Rubyのクラスで書けば仕組みが見えやすく、テストもしやすい |

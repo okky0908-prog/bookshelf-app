@@ -73,7 +73,15 @@ export function MonthlyReadsChart({ months, selectedMonth, error }: Props) {
         <>
           <div className="h-44" aria-hidden="true">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={data} margin={{ top: 20, right: 0, bottom: 0, left: 0 }}>
+              {/*
+                グラフはスクリーンリーダーから隠し、内容は下の表で読めるようにしている。
+                Recharts のキーボード操作（accessibilityLayer）が有効だと、隠した部分にフォーカスが入るためオフにする
+              */}
+              <BarChart
+                data={data}
+                margin={{ top: 20, right: 0, bottom: 0, left: 0 }}
+                accessibilityLayer={false}
+              >
                 <YAxis hide allowDecimals={false} domain={[0, (max: number) => Math.max(max, 1)]} />
                 <XAxis
                   dataKey="month"

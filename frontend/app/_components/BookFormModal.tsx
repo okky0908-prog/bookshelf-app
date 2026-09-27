@@ -8,6 +8,7 @@ import {
   changeStatus,
   emptyBookForm,
   formToInput,
+  isHttpUrl,
   validateBookForm,
   type BookForm,
   type BookFormErrors,
@@ -422,7 +423,7 @@ function Field({
 
 /** 書影のプレビュー。http(s) のURLでなければプレースホルダを表示する */
 function CoverPreview({ url }: { url: string }) {
-  const valid = /^https?:\/\/.+/.test(url.trim());
+  const valid = isHttpUrl(url.trim());
   return (
     <div aria-label="書影のプレビュー" role="group">
       <BookCover key={url} url={valid ? url.trim() : null} className="h-[74px] w-[52px]" />
