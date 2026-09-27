@@ -4,8 +4,9 @@ import {
   closestCorners,
   DndContext,
   DragOverlay,
-  PointerSensor,
+  MouseSensor,
   pointerWithin,
+  TouchSensor,
   useDraggable,
   useDroppable,
   useSensor,
@@ -54,8 +55,12 @@ export function BoardView({ board, onOpenBook, onMoveBook }: Props) {
   // ドラッグを終えたときのクリックで、編集モーダルが開かないようにする
   const suppressClick = useRef(false);
 
-  // 少し動かしてからドラッグを始める（クリックでモーダルを開けるようにする）
-  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }));
+  // マウスは少し動かしてからドラッグを始める（クリックでモーダルを開けるようにする）
+  // スマホなどのタッチは長押ししてからドラッグを始める（カードの上で指を動かしたときは、列をスクロールできるようにする）
+  const sensors = useSensors(
+    useSensor(MouseSensor, { activationConstraint: { distance: 5 } }),
+    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 5 } }),
+  );
 
   const noResults =
     board.filtered && STATUSES.every(({ key }) => board.columns[key].books.length === 0);
