@@ -50,8 +50,8 @@ test:
 # Read https://guides.rubyonrails.org/configuring.html#configuring-a-database
 # for a full overview on how database connection configuration can be specified.
 #
+# 本番（AWS）では、RDS の接続先・ユーザー名・パスワードを環境変数で渡す（docs/infrastructure.md）
+# 値はリポジトリに入れず、バックエンドのサーバーの環境変数ファイルに置く
 production:
   <<: *default
-  database: bookshelf_production
-  username: backend
-  password: <%= ENV["BACKEND_DATABASE_PASSWORD"] %>
+  database: <%= ENV.fetch("DB_NAME") { "bookshelf_production" } %>
