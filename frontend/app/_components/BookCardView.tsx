@@ -30,8 +30,9 @@ export function BookCardView({ book, onOpen, ref, dragListeners, faded, overlay 
       type="button"
       onClick={() => onOpen(book.id)}
       {...dragListeners}
-      className={`flex w-full touch-none items-start gap-3 rounded-lg border border-line bg-surface p-2.5 text-left hover:border-field-line ${
-        dragListeners ? "cursor-grab" : ""
+      className={`flex w-full items-start gap-3 rounded-lg border border-line bg-surface p-2.5 text-left hover:border-field-line ${
+        // 長押しでドラッグするとき、文字の選択やメニュー（iOS の長押しメニュー）が出ないようにする
+        dragListeners ? "cursor-grab select-none [-webkit-touch-callout:none]" : ""
       } ${faded ? "opacity-40" : ""} ${
         overlay
           ? "cursor-grabbing opacity-60 shadow-[0_12px_28px_rgba(30,28,25,0.22)]"
