@@ -157,6 +157,7 @@ frontend/
   - フロントエンド：タグ名の正規化、APIの呼び出しとエラーの読み取り、主要なコンポーネントの表示
 - CI は PR を作成・更新したときに、frontend（ESLint・型チェック・Vitest・ビルド）と backend（RuboCop・RSpec）を実行する。CLAUDE.md のルール（CIが通ってからマージする）に使う
 - ブラウザを自動操作するテスト（E2Eテスト）は、MVPの範囲外とする
+- パフォーマンステストは CI には入れず、好きなときにローカルで実行する（[performance.md](performance.md)）
 
 ## 8. 設計上の判断とその理由
 
